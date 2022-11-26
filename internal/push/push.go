@@ -4,9 +4,11 @@ import (
 	"create-cli/internal/download"
 	"create-cli/internal/log"
 	"os"
+	"time"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/spf13/viper"
 	"github.com/xanzy/go-gitlab"
@@ -14,22 +16,24 @@ import (
 
 var logger = log.StderrLogger{Stderr: os.Stderr, Tool: "Push"}
 var gitlabClient *gitlab.Client
+var gitlabGroup string
+var namespaceId int
 
 func Push() {
+	gitlabGroup = viper.GetString("gitlab-group")
+	namespaceId = getNamespaceIDOfGroup()
+
 	for repoName := range download.ReposToClone {
 		pushRepo(repoName)
 	}
 }
 
 func pushRepo(repoName string) {
-	group := viper.GetString("gitlab-group")
-	namespaceId := getNamespaceIDOfGroup(group)
-	project := createNewRepository(repoName, namespaceId)
-	pushCode(project.HTTPURLToRepo, repoName)
-}
+	project := createNewRepository(repoName)
 
-func pushCode(httpsUrlToRepo string, repoName string) {
 	logger.Waitingf("Pushing project %s...", repoName)
+
+	// we have to do a `plainOpen` so the git library can perform actions on it that we need below.
 	r, err := git.PlainOpen(download.CreateRepositoryDirectory + repoName)
 	if err != nil {
 		panic(err)
@@ -41,12 +45,37 @@ func pushCode(httpsUrlToRepo string, repoName string) {
 		panic(err)
 	}
 
-	// we want to create a new origin remote that points to the place that
-	// we want to push the repository
+	// we want to create a new origin remote that points to the
+	// new place that we want to push the repository
 	_, err = r.CreateRemote(&config.RemoteConfig{
 		Name: "origin",
-		URLs: []string{httpsUrlToRepo},
+		URLs: []string{project.HTTPURLToRepo},
 	})
+	if err != nil {
+		panic(err)
+	}
+
+	// need to commit the code in the repositories as there has been changes in the `configure` step
+	w, err := r.Worktree()
+	if err != nil {
+		panic(err)
+	}
+	_, err = w.Add(".")
+	if err != nil {
+		panic(err)
+	}
+
+	commit, err := w.Commit("Configures repository", &git.CommitOptions{
+		Author: &object.Signature{
+			Name: "create-cli",
+			When: time.Now(),
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = r.CommitObject(commit)
 	if err != nil {
 		panic(err)
 	}
@@ -82,12 +111,12 @@ func initialiseGitlabClient() {
 // gets the namespace ID of the group given as Gitlab treats users and groups as
 // namespaces. therefore in order to create new projects/repositories in groups
 // we need the namespace id of it
-func getNamespaceIDOfGroup(groupName string) int {
+func getNamespaceIDOfGroup() int {
 	if gitlabClient == nil {
 		initialiseGitlabClient()
 	}
 
-	ids, _, err := gitlabClient.Namespaces.SearchNamespace(groupName)
+	ids, _, err := gitlabClient.Namespaces.SearchNamespace(gitlabGroup)
 	if err != nil {
 		panic(err)
 	}
@@ -99,17 +128,24 @@ func getNamespaceIDOfGroup(groupName string) int {
 	return ids[0].ID
 }
 
-func createNewRepository(projectName string, namespaceId int) *gitlab.Project {
+// createNewRepository creates the new Gitlab repository with the name passed in as `projectName`.
+// This function will return the Gitlab.Project data object with all relevant details returned from Gitlab API.
+func createNewRepository(projectName string) *gitlab.Project {
 	if gitlabClient == nil {
 		initialiseGitlabClient()
 	}
 
 	logger.Waitingf("Creating project: %s ...", projectName)
-	project, _, err := gitlabClient.Projects.CreateProject(&gitlab.CreateProjectOptions{
+	project, r, err := gitlabClient.Projects.CreateProject(&gitlab.CreateProjectOptions{
 		Name:        gitlab.String(projectName),
 		NamespaceID: gitlab.Int(namespaceId),
 		Visibility:  gitlab.Visibility(gitlab.PrivateVisibility),
 	})
+
+	if r.StatusCode == 400 && err != nil {
+		logger.Successf("Project already created.")
+		panic(err)
+	}
 
 	if err != nil {
 		logger.Failuref("Failed to create project: %s", projectName)
