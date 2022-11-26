@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -70,8 +71,7 @@ func replaceTextInFile(fileContents string, path string) {
 	fileContents = replaceString(fileContents, "[CONCOURSE_OIDC_CLIENT_SECRET]", base64EncodeString(concourseOIDClientSecret))
 	fileContents = replaceString(fileContents, "[CONCOURSE_VAULT_APP_ROLE]", base64EncodeString(concourseAppRoleCreds))
 	fileContents = replaceString(fileContents, "[OAUTH2_PROXY_OIDC_CLIENT_SECRET]", base64EncodeString(oAuth2ProxyOIDCClientSecret))
-	// fileContents = replaceString(fileContents, "[CREATE_CLI_GITLAB_REG_PULL_SECRET]", base64EncodeString(oAuth2ProxyOIDCClientSecret))
-	// fileContents = replaceString(fileContents, "[CREATE_CLI_GITLAB_TOKEN]", base64EncodeString(oAuth2ProxyOIDCClientSecret))
+	fileContents = replaceString(fileContents, "[CREATE_CLI_GITLAB_TOKEN]", base64EncodeString(backstageGitlabUserToken))
 	fileContents = replaceString(fileContents, "[GRAFANA_OIDC_CLIENT_SECRET]", base64EncodeString(grafanaOIDCClientSecret))
 	fileContents = replaceString(fileContents, "[SONARQUBE_NEW_ADMIN_PASSWORD]", base64EncodeString(sonarqubeNewAdminPassword))
 
@@ -109,7 +109,7 @@ func visit(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("Walked over file: %s \n", path)
+		// fmt.Printf("Walked over file: %s \n", path)
 		replaceTextInFile(string(read), path)
 	}
 
@@ -140,10 +140,13 @@ func Configure() {
 	gitSSHURLCreateProject = fmt.Sprintf("ssh://git@%s/%s", gitlabHost, gitlabGroup)
 	gitHTTPSURLCreateProject = fmt.Sprintf("https://%s/%s", gitlabHost, gitlabGroup)
 
+	log.Println("Configuring CREATE repositories...")
 	for range download.ReposToClone {
+
 		err := filepath.Walk(download.CreateRepositoryDirectory, visit)
 		if err != nil {
 			panic(err)
 		}
 	}
+	log.Println("Configured.")
 }

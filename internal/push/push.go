@@ -68,8 +68,8 @@ func initialiseGitlabClient() {
 	personalAccessTokenPush := viper.GetString("pat")
 	logger.Waitingf("Initialising Gitlab Client...")
 
-	// TODO needs to do the custom host here
-	// gitlab.NewClient("personalAccessTokenPush", gitlab.WithBaseURL("https://"+viper.GetString("host")))
+	// TODO needs to do the custom gitlab-host here
+	// gitlab.NewClient("personalAccessTokenPush", gitlab.WithBaseURL("https://"+viper.GetString("gitlab-host")))
 	gc, err := gitlab.NewClient(personalAccessTokenPush)
 	if err != nil {
 		logger.Failuref("Failed to create gitlab client: %v", err)

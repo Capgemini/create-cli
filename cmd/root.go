@@ -30,6 +30,10 @@ func Execute() {
 	rootCmd.PersistentFlags().BoolVarP(&k8sArgs.outCluster, "out-cluster", "", k8sArgs.outCluster, "specifies if the in cluster k8s client has to be used")
 	viper.BindPFlag("out-cluster", rootCmd.PersistentFlags().Lookup("out-cluster"))
 
+	// rootCmd.PersistentFlags().StringVarP(&group, "gitlab-group", "", "", "The Gitlab group to push CREATE repositories into. Example: 'subgroup' in 'group/subgroup'")
+	// pushCmd.MarkFlagRequired("gitlab-group")
+	// viper.BindPFlag("gitlab-group", rootCmd.PersistentFlags().Lookup("gitlab-group"))
+
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
 		os.Exit(1)
