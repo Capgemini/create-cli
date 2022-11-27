@@ -3,13 +3,13 @@ package vault
 import (
 	"create-cli/internal/k8s"
 	"encoding/json"
+	"time"
 
 	vault "github.com/hashicorp/vault/api"
 	"github.com/spf13/viper"
 )
 
 // need to be ENV VAR driven
-var oidcDiscoveryUrl string
 var oidcConfigAccessor string
 var oidcKeyName = "keycloak"
 
@@ -41,8 +41,6 @@ func getVaultOIDCSecret() string {
 	secret := k8s.GetSecret("create-secrets", "default")
 	logger.Successf("Retrieved Vault Keycloak Client Secret")
 
-	//now we have retrieved the secret, we want to delete it
-	deleteVaultOIDCSecret()
 	return string(secret.Data["vault-keycloak-client-secret"])
 }
 
@@ -59,21 +57,32 @@ func deleteVaultOIDCSecret() {
 func createOIDCConfig() {
 	createUrl := viper.GetString("create-url")
 
-	logger.Waitingf("Creating OIDC JWT Config...")
-	_, err := vaultClient.Logical().Write("/auth/oidc/config", map[string]interface{}{
-		"default_role":       "default",
-		"oidc_discovery_url": "https://keycloak.tooling." + createUrl + "/realms/sso",
-		"oidc_client_id":     "vault",
-		"oidc_client_secret": getVaultOIDCSecret(),
-	})
+	// we wrap it in a for loop because sometimes the oidc config call fails around the keycloak
+	// discovery url. we aren't sure why. but we know if we send the request again it works.
+	// we suspect there's just some weird race condition sometimes that keycloak oidc isn't ready yet.
+	for {
+		logger.Waitingf("Creating OIDC JWT Config...")
+		_, err := vaultClient.Logical().Write("/auth/oidc/config", map[string]interface{}{
+			"default_role":       "default",
+			"oidc_discovery_url": "https://keycloak.tooling." + createUrl + "/realms/sso",
+			"oidc_client_id":     "vault",
+			"oidc_client_secret": getVaultOIDCSecret(),
+		})
 
-	if err != nil {
-		logger.Failuref("Error creating OIDC JWT config", err)
-		panic(err)
+		if err != nil {
+			logger.Failuref("Error creating OIDC JWT config, retrying.")
+			time.Sleep(time.Duration(10) * time.Second)
+			continue
+		}
+		//now we have retrieved the secret, we want to delete it
+		deleteVaultOIDCSecret()
+		logger.Successf("OIDC JWT Config Created")
+		break
 	}
 
+	logger.Waitingf("Creating OIDC Tuning config...")
 	// tuning here https://www.vaultproject.io/api-docs/system/auth#tune-auth-method
-	_, err = vaultClient.Logical().Write("/sys/auth/oidc/tune", map[string]interface{}{
+	_, err := vaultClient.Logical().Write("/sys/auth/oidc/tune", map[string]interface{}{
 		"default_lease_ttl":            "1h",
 		"listing_visibility":           "unauth",
 		"max_lease_ttl":                "1h",
@@ -86,6 +95,7 @@ func createOIDCConfig() {
 		logger.Failuref("Error creating OIDC JWT Tuning", err)
 		panic(err)
 	}
+	logger.Successf("OIDC Tuning Config Created")
 
 	resp, err := vaultClient.Sys().ListAuth()
 	if err != nil {
@@ -94,8 +104,6 @@ func createOIDCConfig() {
 
 	// here we get the accessor of the OIDC method so that we can use it later on
 	oidcConfigAccessor = resp["oidc/"].Accessor
-
-	logger.Successf("OIDC JWT Config Created")
 }
 
 type OIDCRoleRequest struct {
@@ -115,8 +123,9 @@ type ClaimMappings struct {
 }
 
 func createOIDCRole() {
-	logger.Waitingf("Creating OIDC Role...")
+	createUrl := viper.GetString("create-url")
 
+	logger.Waitingf("Creating OIDC Role...")
 	oidcRoleRequest := OIDCRoleRequest{
 		RoleType:       "oidc",
 		TokenTTL:       "3600",
@@ -128,8 +137,8 @@ func createOIDCRole() {
 			Email:             "email",
 		},
 		AllowedRedirectUris: []string{
-			vaultUrl + "/ui/vault/auth/oidc/oidc/callback",
-			vaultUrl + "/oidc/oidc/callback",
+			"https://vault.tooling." + createUrl + "/ui/vault/auth/oidc/oidc/callback",
+			"https://vault.tooling." + createUrl + "/oidc/oidc/callback",
 		},
 		GroupsClaim: "/groups",
 	}

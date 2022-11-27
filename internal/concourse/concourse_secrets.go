@@ -61,8 +61,6 @@ func deleteDeployKey(id int, gitlabGroup string) {
 		gitlabGroup + "/backstage",
 		gitlabGroup + "/test-project",
 		gitlabGroup + "/concourse-tasks",
-		gitlabGroup + "/bot",
-		gitlabGroup + "/bot-chart",
 		gitlabGroup + "/base-helm-chart",
 	})
 
@@ -181,8 +179,6 @@ func enableConcourseGitlabDeployKey() {
 		gitlabGroup + "/backstage",
 		gitlabGroup + "/test-project",
 		gitlabGroup + "/concourse-tasks",
-		gitlabGroup + "/bot",
-		gitlabGroup + "/bot-chart",
 		gitlabGroup + "/base-helm-chart",
 	})
 }

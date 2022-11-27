@@ -70,10 +70,15 @@ func DeleteDeployKey(deployKeyId int, projects []string) {
 
 	logger.Waitingf("Deleting deploy key: %d on listed projects...", deployKeyId)
 	for _, project := range projects {
-		_, err := gitlabClient.DeployKeys.DeleteDeployKey(project, deployKeyId, nil)
+		resp, err := gitlabClient.DeployKeys.DeleteDeployKey(project, deployKeyId, nil)
 		if err != nil {
-			logger.Failuref("Failed to delete deploy key: %d on project: %s", deployKeyId, project)
-			panic(err)
+			if resp.StatusCode != 404 {
+				logger.Failuref("Failed to delete deploy key: %d on project: %s", deployKeyId, project)
+				panic(err)
+			}
+			// we skip if response was 404 because the deploy key didn't exist to delete.
+			// so there is nothing further to do. so we continue to next project.
+			continue
 		}
 	}
 	logger.Successf("Deleted deploy key: %d on listed projects", deployKeyId)

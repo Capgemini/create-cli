@@ -42,6 +42,7 @@ func unsealVault(vaultInitalisedResponse *vault.InitResponse) {
 
 		if !unsealResponse.Sealed {
 			logger.Successf("Vault is unsealed.")
+			vaultClient.SetToken(vaultInitalisedResponse.RootToken)
 			break
 		}
 	}

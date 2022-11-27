@@ -14,12 +14,12 @@ var CreateRepositoryDirectory = "create-repositories/"
 
 var ReposToClone = map[string]string{
 	"flux-config-for-applications": "https://github.com/cd-create/flux-config-for-applications.git",
-	// "flux-config-for-tooling":      "https://github.com/cd-create/flux-config-for-tooling.git",
-	// "test-project":                 "https://github.com/cd-create/test-project.git",
-	// "concourse-tasks":              "https://github.com/cd-create/concourse-tasks.git",
-	// "backstage":                    "https://github.com/cd-create/backstage.git",
-	// "backstage-software-templates": "https://github.com/cd-create/backstage-software-templates.git",
-	// "base-helm-chart":              "https://github.com/cd-create/base-helm-chart.git",
+	"flux-config-for-tooling":      "https://github.com/cd-create/flux-config-for-tooling.git",
+	"test-project":                 "https://github.com/cd-create/test-project.git",
+	"concourse-tasks":              "https://github.com/cd-create/concourse-tasks.git",
+	"backstage":                    "https://github.com/cd-create/backstage.git",
+	"backstage-software-templates": "https://github.com/cd-create/backstage-software-templates.git",
+	"base-helm-chart":              "https://github.com/cd-create/base-helm-chart.git",
 }
 
 func returnRepoListWithCloudProviderTemplate(cloudProvider string) map[string]string {

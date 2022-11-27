@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 )
 
 var concourseUsername = "concourse"
@@ -56,6 +57,13 @@ func createUser(username string, password string) (string, error) {
 	}
 
 	if resp.StatusCode == 400 {
+		// we check if the body has an `already exists` string because if so
+		// then user already has been created. we do this because the status code
+		// returned is 400, not 409 - which isn't ideal.
+		if strings.Contains(string(body), "already exists") {
+			logger.Failuref("%s user already exists", username)
+			return "", nil
+		}
 		logger.Failuref("Failed to create %s user: %s", username, string(body))
 		return "", errors.New("")
 	}
