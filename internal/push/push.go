@@ -23,7 +23,7 @@ func Push() {
 	gitlabGroup = viper.GetString("gitlab-group")
 	namespaceId = getNamespaceIDOfGroup()
 
-	for repoName := range download.ReposToClone {
+	for repoName := range download.ReturnRepoListWithCloudProviderTemplate(viper.GetString("cloud-provider")) {
 		pushRepo(repoName)
 	}
 }
@@ -88,6 +88,22 @@ func pushRepo(repoName string) {
 	})
 	if err != nil {
 		panic(err)
+	}
+
+	if repoName == "backstage" || repoName == "base-helm-chart" {
+		created, err := createTag(r, "1.0.0")
+		if err != nil {
+			logger.Failuref("create tag error: %s", err)
+			return
+		}
+
+		if created {
+			err = pushTag(r)
+			if err != nil {
+				logger.Failuref("push tag error: %s", err)
+				return
+			}
+		}
 	}
 }
 
@@ -154,4 +170,44 @@ func createNewRepository(projectName string) *gitlab.Project {
 	logger.Successf("Project Created %s", projectName)
 
 	return project
+}
+
+func createTag(r *git.Repository, tag string) (bool, error) {
+	h, err := r.Head()
+	if err != nil {
+		logger.Failuref("get HEAD error: %s", err)
+		return false, err
+	}
+	_, err = r.CreateTag(tag, h.Hash(), &git.CreateTagOptions{
+		Message: tag,
+	})
+
+	if err != nil {
+		logger.Failuref("create tag error: %s", err)
+		return false, err
+	}
+
+	return true, nil
+}
+
+func pushTag(r *git.Repository) error {
+	po := &git.PushOptions{
+		RemoteName: "origin",
+		Progress:   os.Stdout,
+		RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
+		Auth: &http.BasicAuth{
+			Password: viper.GetString("pat"),
+		},
+	}
+	err := r.Push(po)
+	if err != nil {
+		if err == git.NoErrAlreadyUpToDate {
+			logger.Failuref("origin remote was up to date, no push done")
+			return nil
+		}
+		logger.Failuref("push to remote origin error: %s", err)
+		return err
+	}
+
+	return nil
 }

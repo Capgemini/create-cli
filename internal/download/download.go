@@ -22,7 +22,7 @@ var ReposToClone = map[string]string{
 	"base-helm-chart":              "https://github.com/cd-create/base-helm-chart.git",
 }
 
-func returnRepoListWithCloudProviderTemplate(cloudProvider string) map[string]string {
+func ReturnRepoListWithCloudProviderTemplate(cloudProvider string) map[string]string {
 	if strings.ToLower(cloudProvider) == "azure" {
 		ReposToClone["azure-create-platform"] = "https://github.com/cd-create/azure-create-platform.git"
 		return ReposToClone
@@ -45,7 +45,7 @@ func Download() {
 	cloudProvider := viper.GetString("cloud-provider")
 	personalAccessToken := viper.GetString("pat")
 
-	returnRepoListWithCloudProviderTemplate(cloudProvider)
+	ReturnRepoListWithCloudProviderTemplate(cloudProvider)
 
 	// create the directory to which all repositories will be cloned within
 	err := os.Mkdir(CreateRepositoryDirectory, 0755)

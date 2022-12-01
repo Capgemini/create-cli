@@ -9,7 +9,7 @@ import (
 
 var logger = log.StderrLogger{Stderr: os.Stderr, Tool: "Concourse"}
 var concourseUrl, concourseUrlPresent = os.LookupEnv("CONCOURSE_URL")
-var botGitlabToken, botGitlabTokenPresent = os.LookupEnv("GITLAB_TOKEN")
+var botGitlabToken, botGitlabTokenPresent = os.LookupEnv("CONCOURSE_GITLAB_TOKEN")
 
 func Concourse() {
 
@@ -21,7 +21,7 @@ func Concourse() {
 	}
 
 	if !botGitlabTokenPresent {
-		logger.Failuref("GITLAB_TOKEN env variable is not defined. This is needed for Concourse to be able to access Gitlab API's.")
+		logger.Failuref("CONCOURSE_GITLAB_TOKEN env variable is not defined. This is needed for Concourse to be able to access Gitlab API's.")
 		os.Exit(1)
 	}
 

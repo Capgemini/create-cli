@@ -10,7 +10,7 @@ import (
 var logger = log.StderrLogger{Stderr: os.Stderr, Tool: "Gitlab"}
 var gitlabClient *gitlab.Client
 
-func InitialiseGitlabClient() {
+func initialiseGitlabClient() {
 	gitlabToken, gitlabTokenPresent := os.LookupEnv("GITLAB_TOKEN")
 	if !gitlabTokenPresent {
 		logger.Failuref("GITLAB_TOKEN env variable is not defined")
@@ -28,7 +28,7 @@ func InitialiseGitlabClient() {
 
 func ListDeployKeys(project string) []*gitlab.ProjectDeployKey {
 	if gitlabClient == nil {
-		InitialiseGitlabClient()
+		initialiseGitlabClient()
 	}
 
 	logger.Waitingf("Getting deploy keys...")
@@ -44,7 +44,7 @@ func ListDeployKeys(project string) []*gitlab.ProjectDeployKey {
 
 func AddDeployKey(concourseSSHPubKey string, deployKeyTitle string, gitlabGroup string) int {
 	if gitlabClient == nil {
-		InitialiseGitlabClient()
+		initialiseGitlabClient()
 	}
 
 	logger.Waitingf("Adding deploy key: %s...", deployKeyTitle)
@@ -65,7 +65,7 @@ func AddDeployKey(concourseSSHPubKey string, deployKeyTitle string, gitlabGroup 
 
 func DeleteDeployKey(deployKeyId int, projects []string) {
 	if gitlabClient == nil {
-		InitialiseGitlabClient()
+		initialiseGitlabClient()
 	}
 
 	logger.Waitingf("Deleting deploy key: %d on listed projects...", deployKeyId)
@@ -86,7 +86,7 @@ func DeleteDeployKey(deployKeyId int, projects []string) {
 
 func EnableDeployKey(deployKeyId int, projects []string) {
 	if gitlabClient == nil {
-		InitialiseGitlabClient()
+		initialiseGitlabClient()
 	}
 
 	logger.Waitingf("Enabling deploy key: %d on listed projects...", deployKeyId)

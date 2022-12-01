@@ -14,8 +14,10 @@ var cloudProvider string
 var acmeRegistrationEmail string
 var backstageGitlabUserToken string
 var backstageGitlabUserUsername string
+var concourseGitlabUserToken string
 var gitlabGroup string
 var gitlabHost string
+var gitlabPATToken string
 
 func init() {
 	downloadFlags()
@@ -38,6 +40,9 @@ func downloadFlags() {
 }
 
 func configureFlags() {
+	configureCmd.Flags().StringVarP(&gitlabPATToken, "gitlab-pat-token", "", "", "The Personal Access Token belonging to User with Admin permissions to Gitlab Group.")
+	configureCmd.MarkFlagRequired("gitlab-pat-token")
+
 	configureCmd.Flags().StringVarP(&createUrl, "create-url", "", "", "The URL of CREATE (e.g. create.company.com")
 	configureCmd.MarkFlagRequired("create-url")
 
@@ -50,6 +55,9 @@ func configureFlags() {
 	configureCmd.Flags().StringVarP(&backstageGitlabUserUsername, "backstage-gitlab-username", "", "", "The username of the Backstage Gitlab user")
 	configureCmd.MarkFlagRequired("backstage-gitlab-username")
 
+	configureCmd.Flags().StringVarP(&concourseGitlabUserToken, "concourse-gitlab-token", "", "", "The Token belonging to the Concourse Gitlab user")
+	configureCmd.MarkFlagRequired("concourse-gitlab-token")
+
 	configureCmd.Flags().StringVarP(&gitlabHost, "gitlab-host", "", "gitlab.com", "The Gitlab host to which the CREATE Git repositories will live. Defaults to gitlab.com")
 
 	configureCmd.Flags().StringVarP(&gitlabGroup, "gitlab-group", "", "", "The group (or owner) to which the CREATE Git repositories will live. Example: 'group/subgroup' in 'gitlab.com/group/subgroup'")
@@ -57,6 +65,9 @@ func configureFlags() {
 }
 
 func pushFlags() {
+	pushCmd.Flags().StringVarP(&cloudProvider, "cloud-provider", "", "", "The Cloud Provider that CREATE will exist in")
+	pushCmd.MarkFlagRequired("cloud-provider")
+
 	pushCmd.Flags().StringVarP(&personalAccessToken, "pat", "", "", "Personal Access Token for the Git Repository (Gitlab/GitHub)")
 	pushCmd.MarkFlagRequired("pat")
 
@@ -93,10 +104,12 @@ var configureCmd = &cobra.Command{
 	Short: "Configures clone repositories with generated values", // better description
 	Args:  cobra.MinimumNArgs(0),
 	PreRun: func(cmd *cobra.Command, args []string) {
+		viper.BindPFlag("gitlab-pat-token", cmd.Flags().Lookup("gitlab-pat-token"))
 		viper.BindPFlag("create-url", cmd.Flags().Lookup("create-url"))
 		viper.BindPFlag("acme-reg-email", cmd.Flags().Lookup("acme-reg-email"))
 		viper.BindPFlag("backstage-gitlab-token", cmd.Flags().Lookup("backstage-gitlab-token"))
 		viper.BindPFlag("backstage-gitlab-username", cmd.Flags().Lookup("backstage-gitlab-username"))
+		viper.BindPFlag("concourse-gitlab-token", cmd.Flags().Lookup("concourse-gitlab-token"))
 		viper.BindPFlag("gitlab-host", cmd.Flags().Lookup("gitlab-host"))
 		viper.BindPFlag("gitlab-group", cmd.Flags().Lookup("gitlab-group"))
 	},
@@ -113,6 +126,7 @@ var pushCmd = &cobra.Command{
 		viper.BindPFlag("pat", cmd.Flags().Lookup("pat"))
 		viper.BindPFlag("gitlab-host", cmd.Flags().Lookup("gitlab-host"))
 		viper.BindPFlag("gitlab-group", cmd.Flags().Lookup("gitlab-group"))
+		viper.BindPFlag("cloud-provider", cmd.Flags().Lookup("cloud-provider"))
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		push.Push()

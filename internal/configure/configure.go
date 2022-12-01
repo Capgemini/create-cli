@@ -20,7 +20,7 @@ var createUrl string
 var acmeRegistrationEmail string
 var backstageGitlabUserToken string
 var backstageGitlabUserUsername string
-
+var concourseGitlabUserToken string
 var fluxHarborRobotAccountUsername string
 var fluxHarborRobotAccountUsernameB64 string
 var fluxHarborRobotAccountPassword string
@@ -37,6 +37,7 @@ var sonarqubeNewAdminPassword string
 var gitSSHURLCreateProject string
 var gitHTTPSURLCreateProject string
 var gitlabGroup string
+var gitlabPATToken string
 
 // replaceString takes in file contents as a string and finds and replaces all
 // instances of an old string with the new one
@@ -64,17 +65,17 @@ func replaceTextInFile(fileContents string, path string) {
 	fileContents = replaceString(fileContents, "[FLUX_HARBOR_ROBOT_ACCOUNT_PASSWORD]", fluxHarborRobotAccountPasswordB64)
 	fileContents = replaceString(fileContents, "[FLUX_HARBOR_PULL_SECRET]", fluxPullSecretJsonB64)
 	fileContents = replaceString(fileContents, "[ACME_REGISTRATION_EMAIL]", acmeRegistrationEmail)
-	fileContents = replaceString(fileContents, "[GITLAB_TOKEN]", base64EncodeString(backstageGitlabUserToken))
-	fileContents = replaceString(fileContents, "[GITLAB_TOKEN_USERNAME]", base64EncodeString(backstageGitlabUserUsername))
+	fileContents = replaceString(fileContents, "[BACKSTAGE_GITLAB_TOKEN]", base64EncodeString(backstageGitlabUserToken))
+	fileContents = replaceString(fileContents, "[BACKSTAGE_GITLAB_TOKEN_USERNAME]", base64EncodeString(backstageGitlabUserUsername))
 	fileContents = replaceString(fileContents, "[CONCOURSE_ADMIN_PASSWORD]", base64EncodeString(concourseAdminPassword))
 	fileContents = replaceString(fileContents, "[CONCOURSE_ADMIN_CREDS]", base64EncodeString(concourseAdminUsername+":"+concourseAdminPassword))
 	fileContents = replaceString(fileContents, "[CONCOURSE_OIDC_CLIENT_SECRET]", base64EncodeString(concourseOIDClientSecret))
 	fileContents = replaceString(fileContents, "[CONCOURSE_VAULT_APP_ROLE]", base64EncodeString(concourseAppRoleCreds))
+	fileContents = replaceString(fileContents, "[CONCOURSE_GITLAB_TOKEN]", base64EncodeString(concourseGitlabUserToken))
 	fileContents = replaceString(fileContents, "[OAUTH2_PROXY_OIDC_CLIENT_SECRET]", base64EncodeString(oAuth2ProxyOIDCClientSecret))
-	fileContents = replaceString(fileContents, "[CREATE_CLI_GITLAB_TOKEN]", base64EncodeString(backstageGitlabUserToken))
+	fileContents = replaceString(fileContents, "[GITLAB_TOKEN]", base64EncodeString(gitlabPATToken))
 	fileContents = replaceString(fileContents, "[GRAFANA_OIDC_CLIENT_SECRET]", base64EncodeString(grafanaOIDCClientSecret))
 	fileContents = replaceString(fileContents, "[SONARQUBE_NEW_ADMIN_PASSWORD]", base64EncodeString(sonarqubeNewAdminPassword))
-
 	fileContents = replaceString(fileContents, "[GIT_SSH_URL_CREATE_PROJECT]", gitSSHURLCreateProject)
 	fileContents = replaceString(fileContents, "[GIT_HTTPS_URL_CREATE_PROJECT]", gitHTTPSURLCreateProject)
 	fileContents = replaceString(fileContents, "[GITLAB_GROUP]", gitlabGroup)
@@ -117,10 +118,12 @@ func visit(path string, fi os.FileInfo, err error) error {
 }
 
 func Configure() {
+	gitlabPATToken = viper.GetString("gitlab-pat-token")
 	createUrl = viper.GetString("create-url")
 	acmeRegistrationEmail = viper.GetString("acme-reg-email")
 	backstageGitlabUserToken = viper.GetString("backstage-gitlab-token")
 	backstageGitlabUserUsername = viper.GetString("backstage-gitlab-username")
+	concourseGitlabUserToken = viper.GetString("concourse-gitlab-token")
 	gitlabHost := viper.GetString("gitlab-host")
 	gitlabGroup = viper.GetString("gitlab-group")
 
