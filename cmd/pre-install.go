@@ -13,7 +13,6 @@ import (
 var cloudProvider string
 var acmeRegistrationEmail string
 var backstageGitlabUserToken string
-var backstageGitlabUserUsername string
 var concourseGitlabUserToken string
 var gitlabGroup string
 var gitlabHost string
@@ -51,9 +50,6 @@ func configureFlags() {
 
 	configureCmd.Flags().StringVarP(&backstageGitlabUserToken, "backstage-gitlab-token", "", "", "The Token belonging to the Backstage Gitlab user")
 	configureCmd.MarkFlagRequired("backstage-gitlab-token")
-
-	configureCmd.Flags().StringVarP(&backstageGitlabUserUsername, "backstage-gitlab-username", "", "", "The username of the Backstage Gitlab user")
-	configureCmd.MarkFlagRequired("backstage-gitlab-username")
 
 	configureCmd.Flags().StringVarP(&concourseGitlabUserToken, "concourse-gitlab-token", "", "", "The Token belonging to the Concourse Gitlab user")
 	configureCmd.MarkFlagRequired("concourse-gitlab-token")
@@ -108,7 +104,6 @@ var configureCmd = &cobra.Command{
 		viper.BindPFlag("create-url", cmd.Flags().Lookup("create-url"))
 		viper.BindPFlag("acme-reg-email", cmd.Flags().Lookup("acme-reg-email"))
 		viper.BindPFlag("backstage-gitlab-token", cmd.Flags().Lookup("backstage-gitlab-token"))
-		viper.BindPFlag("backstage-gitlab-username", cmd.Flags().Lookup("backstage-gitlab-username"))
 		viper.BindPFlag("concourse-gitlab-token", cmd.Flags().Lookup("concourse-gitlab-token"))
 		viper.BindPFlag("gitlab-host", cmd.Flags().Lookup("gitlab-host"))
 		viper.BindPFlag("gitlab-group", cmd.Flags().Lookup("gitlab-group"))

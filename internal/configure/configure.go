@@ -19,7 +19,6 @@ import (
 var createUrl string
 var acmeRegistrationEmail string
 var backstageGitlabUserToken string
-var backstageGitlabUserUsername string
 var concourseGitlabUserToken string
 var fluxHarborRobotAccountUsername string
 var fluxHarborRobotAccountUsernameB64 string
@@ -66,7 +65,6 @@ func replaceTextInFile(fileContents string, path string) {
 	fileContents = replaceString(fileContents, "[FLUX_HARBOR_PULL_SECRET]", fluxPullSecretJsonB64)
 	fileContents = replaceString(fileContents, "[ACME_REGISTRATION_EMAIL]", acmeRegistrationEmail)
 	fileContents = replaceString(fileContents, "[BACKSTAGE_GITLAB_TOKEN]", base64EncodeString(backstageGitlabUserToken))
-	fileContents = replaceString(fileContents, "[BACKSTAGE_GITLAB_TOKEN_USERNAME]", base64EncodeString(backstageGitlabUserUsername))
 	fileContents = replaceString(fileContents, "[CONCOURSE_ADMIN_PASSWORD]", base64EncodeString(concourseAdminPassword))
 	fileContents = replaceString(fileContents, "[CONCOURSE_ADMIN_CREDS]", base64EncodeString(concourseAdminUsername+":"+concourseAdminPassword))
 	fileContents = replaceString(fileContents, "[CONCOURSE_OIDC_CLIENT_SECRET]", base64EncodeString(concourseOIDClientSecret))
@@ -122,7 +120,6 @@ func Configure() {
 	createUrl = viper.GetString("create-url")
 	acmeRegistrationEmail = viper.GetString("acme-reg-email")
 	backstageGitlabUserToken = viper.GetString("backstage-gitlab-token")
-	backstageGitlabUserUsername = viper.GetString("backstage-gitlab-username")
 	concourseGitlabUserToken = viper.GetString("concourse-gitlab-token")
 	gitlabHost := viper.GetString("gitlab-host")
 	gitlabGroup = viper.GetString("gitlab-group")
