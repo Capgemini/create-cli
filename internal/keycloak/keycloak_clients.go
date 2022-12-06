@@ -236,10 +236,10 @@ func CreateClientAndClientProtocolMappers() {
 			"https://harbor.tooling." + createUrl + "/c/oidc/callback"})
 	}
 
-	// if clientDoesNotExist("grafana") {
-	// 	CreateClientAndClientProtocolMapper("grafana", getGrafanaClientSecret(), []string{
-	// 		"https://grafana.tooling." + createUrl +  "/login/generic_oauth"})
-	// }
+	if clientDoesNotExist("grafana") {
+		CreateClientAndClientProtocolMapper("grafana", getGrafanaClientSecret(), []string{
+			"https://grafana.tooling." + createUrl + "/login/generic_oauth"})
+	}
 
 	if clientDoesNotExist("oauth2-proxy") {
 		CreateClientAndClientProtocolMapper("oauth2-proxy", getOAuth2ProxyClientSecret(), []string{
