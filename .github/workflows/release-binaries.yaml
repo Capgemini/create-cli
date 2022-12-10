@@ -28,3 +28,16 @@ jobs:
         goarch: arm64
         goversion: 1.19
         binary_name: create-cli
+
+  release-darwin-arm:
+    name: release darwin/arm64
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: wangyoucao577/go-release-action@v1.34
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: darwin
+        goarch: arm
+        goversion: 1.19
+        binary_name: create-cli

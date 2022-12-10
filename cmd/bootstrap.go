@@ -18,7 +18,6 @@ func Bootstrap(args []string) {
 	sonarqube.SonarQube()
 	concourse.Concourse()
 	harbor.Harbor()
-
 	log.Println("Bootstrap complete.")
 }
 
@@ -32,7 +31,7 @@ func init() {
 
 var bootstrapCmd = &cobra.Command{
 	Use:   "bootstrap",
-	Short: "Bootstraps stuff",
+	Short: "Bootstraps the initial tooling cluster by ensuring all tooling applications have been configured in the correct way ready for use.",
 	Run: func(cmd *cobra.Command, args []string) {
 		Bootstrap(args)
 	},

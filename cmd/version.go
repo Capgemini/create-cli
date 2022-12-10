@@ -14,6 +14,6 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version of create-cli",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("create-cli v0.1")
+		fmt.Println("create-cli 1.0.0.0")
 	},
 }
