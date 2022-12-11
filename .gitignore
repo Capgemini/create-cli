@@ -25,3 +25,5 @@ create-cli
 
 # exclude the folders created by the download command
 create-repositories
+
+.DS_Store
