@@ -3,6 +3,7 @@ package push
 import (
 	"create-cli/internal/download"
 	"create-cli/internal/log"
+	"fmt"
 	"os"
 	"time"
 
@@ -91,14 +92,15 @@ func pushRepo(repoName string) {
 	}
 
 	if repoName == "backstage" || repoName == "base-helm-chart" {
-		created, err := createTag(r, "1.0.0")
+		tag := "1.0.0"
+		created, err := createTag(r, tag)
 		if err != nil {
 			logger.Failuref("create tag error: %s", err)
 			return
 		}
 
 		if created {
-			err = pushTag(r)
+			err = pushTag(r, tag)
 			if err != nil {
 				logger.Failuref("push tag error: %s", err)
 				return
@@ -190,11 +192,12 @@ func createTag(r *git.Repository, tag string) (bool, error) {
 	return true, nil
 }
 
-func pushTag(r *git.Repository) error {
+func pushTag(r *git.Repository, tag string) error {
+	tagRefSpec := fmt.Sprintf("refs/tags/%[1]s:refs/tags/%[1]s", tag)
 	po := &git.PushOptions{
 		RemoteName: "origin",
 		Progress:   os.Stdout,
-		RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
+		RefSpecs:   []config.RefSpec{config.RefSpec(tagRefSpec)},
 		Auth: &http.BasicAuth{
 			Password: viper.GetString("pat"),
 		},
