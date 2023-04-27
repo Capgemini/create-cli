@@ -32,16 +32,10 @@ func Push() {
 func pushRepo(repoName string) {
 	project := createNewRepository(repoName)
 
-	logger.Waitingf("Pushing project %s...", repoName)
+	logger.Waitingf("Initialising Git project %s...", repoName)
 
 	// we have to do a `plainOpen` so the git library can perform actions on it that we need below.
-	r, err := git.PlainOpen(download.CreateRepositoryDirectory + repoName)
-	if err != nil {
-		panic(err)
-	}
-
-	// delete existing remote that comes from public OSS git repo
-	err = r.DeleteRemote("origin")
+	r, err := git.PlainInit(download.CreateRepositoryDirectory+repoName, false)
 	if err != nil {
 		panic(err)
 	}
@@ -82,6 +76,7 @@ func pushRepo(repoName string) {
 	}
 
 	// pushes cloned and configured repo into new git project
+	logger.Waitingf("Pushing project %s...", repoName)
 	err = r.Push(&git.PushOptions{
 		Auth: &http.BasicAuth{
 			Password: viper.GetString("pat"),
