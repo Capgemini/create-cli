@@ -3,6 +3,8 @@ module create-cli
 go 1.18
 
 require (
+	github.com/go-git/go-git/v5 v5.4.2
+	github.com/google/uuid v1.3.0
 	github.com/hashicorp/vault/api v1.7.2
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.12.0
@@ -12,56 +14,18 @@ require (
 )
 
 require (
-	cloud.google.com/go/compute v1.7.0 // indirect
-	filippo.io/age v1.0.0 // indirect
-	github.com/Azure/azure-sdk-for-go v63.3.0+incompatible // indirect
-	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
-	github.com/Azure/go-autorest/autorest v0.11.26 // indirect
-	github.com/Azure/go-autorest/autorest/adal v0.9.18 // indirect
-	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11 // indirect
-	github.com/Azure/go-autorest/autorest/azure/cli v0.4.5 // indirect
-	github.com/Azure/go-autorest/autorest/date v0.3.0 // indirect
-	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
-	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
-	github.com/Azure/go-autorest/logger v0.2.1 // indirect
-	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20220407094043-a94812496cf5 // indirect
 	github.com/acomagu/bufpipe v1.0.3 // indirect
-	github.com/aws/aws-sdk-go v1.43.43 // indirect
-	github.com/dimchansky/utfbom v1.1.1 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
-	github.com/form3tech-oss/jwt-go v3.2.3+incompatible // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.3.1 // indirect
-	github.com/go-git/go-git v4.7.0+incompatible // indirect
-	github.com/go-git/go-git/v5 v5.4.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.3.0 // indirect
-	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/google/uuid v1.3.0 // indirect
-	github.com/googleapis/enterprise-certificate-proxy v0.0.0-20220520183353-fd19c99a87aa // indirect
-	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
-	github.com/goware/prefixer v0.0.0-20160118172347-395022866408 // indirect
-	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
-	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/kevinburke/ssh_config v0.0.0-20201106050909-4977a11b4351 // indirect
-	github.com/konsorten/go-windows-terminal-sequences v1.0.1 // indirect
-	github.com/lib/pq v1.10.5 // indirect
-	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
-	github.com/mozilla-services/yaml v0.0.0-20180922153656-28ffe5d0cafb // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
-	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/src-d/gcfg v1.4.0 // indirect
+	github.com/stretchr/objx v0.3.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
-	go.mozilla.org/gopgagent v0.0.0-20170926210634-4d7ea76ff71a // indirect
-	go.mozilla.org/sops v0.0.0-20190912205235-14a22d7a7060 // indirect
-	go.mozilla.org/sops/v3 v3.7.3 // indirect
-	go.opencensus.io v0.23.0 // indirect
-	google.golang.org/api v0.84.0 // indirect
-	gopkg.in/src-d/go-billy.v4 v4.3.2 // indirect
-	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect
+	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
 
@@ -134,11 +98,11 @@ require (
 	github.com/xanzy/go-gitlab v0.69.0
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
-	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
+	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220630143837-2104d58473e0
-	golang.org/x/sys v0.0.0-20220610221304-9f5ed59c137d // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/term v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220616135557-88e70c0c3a90 // indirect
