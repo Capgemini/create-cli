@@ -1,7 +1,6 @@
 package configure
 
 import (
-	"create-cli/internal/download"
 	"create-cli/internal/generators"
 	"create-cli/internal/harbor"
 	"encoding/base64"
@@ -14,7 +13,39 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
+	"k8s.io/utils/strings/slices"
 )
+
+var CreateRepositoryDirectory = "create-repositories/"
+
+var ReposToClone = []string{
+	"flux-config-for-applications",
+	"flux-config-for-tooling",
+	"test-project",
+	"concourse-tasks",
+	"backstage",
+	"backstage-software-templates",
+	"base-helm-chart",
+}
+
+func ReturnRepoListWithCloudProviderTemplate(cloudProvider string) []string {
+	if strings.ToLower(cloudProvider) == "azure" {
+		ReposToClone = append(ReposToClone, "azure-create-platform")
+		return ReposToClone
+	}
+
+	if strings.ToLower(cloudProvider) == "aws" {
+		ReposToClone = append(ReposToClone, "aws-create-platform-template")
+		return ReposToClone
+	}
+
+	if strings.ToLower(cloudProvider) == "gcp" {
+		ReposToClone = append(ReposToClone, "gcp-create-platform")
+		return ReposToClone
+	}
+
+	panic("Cloud Provider not valid")
+}
 
 var createUrl string
 var acmeRegistrationEmail string
@@ -116,6 +147,7 @@ func visit(path string, fi os.FileInfo, err error) error {
 }
 
 func Configure() {
+	cloudProvider := viper.GetString("cloud-provider")
 	gitlabPATToken = viper.GetString("gitlab-pat-token")
 	createUrl = viper.GetString("create-url")
 	acmeRegistrationEmail = viper.GetString("acme-reg-email")
@@ -140,13 +172,36 @@ func Configure() {
 	gitSSHURLCreateProject = fmt.Sprintf("ssh://git@%s/%s", gitlabHost, gitlabGroup)
 	gitHTTPSURLCreateProject = fmt.Sprintf("https://%s/%s", gitlabHost, gitlabGroup)
 
-	log.Println("Configuring CREATE repositories...")
-	for range download.ReposToClone {
+	removeUnrequiredCloudRepos(cloudProvider)
 
-		err := filepath.Walk(download.CreateRepositoryDirectory, visit)
-		if err != nil {
-			panic(err)
-		}
+	log.Println("Configuring CREATE repositories...")
+	err := filepath.Walk(CreateRepositoryDirectory, visit)
+	if err != nil {
+		panic(err)
 	}
 	log.Println("Configured.")
+}
+
+func removeUnrequiredCloudRepos(cloudProvider string) {
+	entries, err := os.ReadDir(CreateRepositoryDirectory)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// we iterate over the list of directories inside `create-repositories`
+	// and we remove the cloud directories that are not needed.
+	// example, if a user has chosen to run the CLI with the azure cloud provider flag set
+	// then we want to remove the GCP and AWS repos that we do not need to configure
+	log.Println("Removing unused Cloud Repositories...")
+	for _, e := range entries {
+		if e.IsDir() && e.Name() != ".git" {
+			if !slices.Contains(ReturnRepoListWithCloudProviderTemplate(cloudProvider), e.Name()) {
+				err := os.RemoveAll(CreateRepositoryDirectory + e.Name())
+				if err != nil {
+					fmt.Println(err)
+				}
+			}
+		}
+	}
+	log.Println("Unused Cloud Repositories removed.")
 }
