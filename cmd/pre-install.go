@@ -30,15 +30,15 @@ func init() {
 }
 
 func downloadFlags() {
-	downloadCmd.Flags().StringVarP(&cloudProvider, "cloud-provider", "", "", "The Cloud Provider that CREATE will exist in")
-	downloadCmd.MarkFlagRequired("cloud-provider")
-
 	// temporary whilst the repos are private. they will be open sourced and this won't be needed after that.
 	downloadCmd.Flags().StringVarP(&personalAccessToken, "pat", "", "", "Personal Access Token for the Git Repository (Gitlab/GitHub)")
 	downloadCmd.MarkFlagRequired("pat")
 }
 
 func configureFlags() {
+	configureCmd.Flags().StringVarP(&cloudProvider, "cloud-provider", "", "", "The Cloud Provider that CREATE will exist in")
+	configureCmd.MarkFlagRequired("cloud-provider")
+
 	configureCmd.Flags().StringVarP(&gitlabPATToken, "gitlab-pat-token", "", "", "The Personal Access Token belonging to User with Admin permissions to Gitlab Group.")
 	configureCmd.MarkFlagRequired("gitlab-pat-token")
 
@@ -87,7 +87,6 @@ var downloadCmd = &cobra.Command{
 	Short: "Downloads all CREATE repositories via Git",
 	Args:  cobra.MinimumNArgs(0),
 	PreRun: func(cmd *cobra.Command, args []string) {
-		viper.BindPFlag("cloud-provider", cmd.Flags().Lookup("cloud-provider"))
 		viper.BindPFlag("pat", cmd.Flags().Lookup("pat"))
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -100,6 +99,7 @@ var configureCmd = &cobra.Command{
 	Short: "Configures clone repositories with generated values", // better description
 	Args:  cobra.MinimumNArgs(0),
 	PreRun: func(cmd *cobra.Command, args []string) {
+		viper.BindPFlag("cloud-provider", cmd.Flags().Lookup("cloud-provider"))
 		viper.BindPFlag("gitlab-pat-token", cmd.Flags().Lookup("gitlab-pat-token"))
 		viper.BindPFlag("create-url", cmd.Flags().Lookup("create-url"))
 		viper.BindPFlag("acme-reg-email", cmd.Flags().Lookup("acme-reg-email"))

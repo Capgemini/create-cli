@@ -1,7 +1,7 @@
 package push
 
 import (
-	"create-cli/internal/download"
+	"create-cli/internal/configure"
 	"create-cli/internal/log"
 	"fmt"
 	"os"
@@ -24,7 +24,7 @@ func Push() {
 	gitlabGroup = viper.GetString("gitlab-group")
 	namespaceId = getNamespaceIDOfGroup()
 
-	for repoName := range download.ReturnRepoListWithCloudProviderTemplate(viper.GetString("cloud-provider")) {
+	for _, repoName := range configure.ReturnRepoListWithCloudProviderTemplate(viper.GetString("cloud-provider")) {
 		pushRepo(repoName)
 	}
 }
@@ -35,7 +35,7 @@ func pushRepo(repoName string) {
 	logger.Waitingf("Initialising Git project %s...", repoName)
 
 	// we have to do a `plainOpen` so the git library can perform actions on it that we need below.
-	r, err := git.PlainInit(download.CreateRepositoryDirectory+repoName, false)
+	r, err := git.PlainInit(configure.CreateRepositoryDirectory+repoName, false)
 	if err != nil {
 		panic(err)
 	}
