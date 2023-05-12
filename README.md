@@ -1,22 +1,69 @@
-# create-cli
+# `create-cli`
 
-A command line client for CREATE.
+A command line client for downloading and configuring CREATE.
 
-## Releasing `create-cli`
+- [`create-cli`](#create-cli)
+  - [Introduction](#introduction)
+  - [Downloading and Installing](#downloading-and-installing)
+  - [Usage](#usage)
+    - [Download Create using `create-cli`](#download-create-using-create-cli)
+    - [Configuring CREATE repositories using `create-cli`](#configuring-create-repositories-using-create-cli)
+    - [Pushing to Remote Gitlab](#pushing-to-remote-gitlab)
+  - [Contributing](#contributing)
 
-In order to release the `create-cli`, simply create the correct release and tags via the release page. It is important that you also modify the `cmd/version.go` file to have the correct vesrion that you want to release. This isn't the best way of ensuring we set the correct versions for the `cli` but for now it will do.
+## Introduction
 
-Example:
-From:
 
-```golang
-fmt.Println("create-cli 1.0.0.0")
+
+## Downloading and Installing
+
+To download the `create-cli`, get the desired binary version from the [Releases page](https://github.com/Capgemini/create-cli/releases) ensuring that you choose the correct binary type for your computer architecture.
+
+## Usage
+
+The following sections will detail how to use the `create-cli` to download and configure the CREATE source code.
+
+### Download Create using `create-cli`
+
+In order to download the CREATE repositories, you can either do it manually via git clone, or you can use the `create-cli` (recommended). Run the following to download the code and have it ready for the configuration step. You will need to give it a Github Personal Access Token so that it can correct clone (as it does not use SSH by default).
+
+```shell
+create-cli pre-install download \
+    --pat $GITHUB_PERSONAL_ACCESS_TOKEN
 ```
 
-To:
+For a better explanation of what the above variables are used for, run `create-cli pre-install download help`.
 
-```golang
-fmt.Println("create-cli 1.0.0.1")
+### Configuring CREATE repositories using `create-cli`
+
+Once the CREATE repositories have been downloaded, you can configure them by using the `create-cli`. It is recommended to use the `create-cli` unless you know what you are doing. The `cli` is programmed to find specific variable placeholders and to replace them with real values that are auto-generated or provided by the user using the flags below. Run the following to configure the CREATE repository downloaded:
+
+```shell
+create-cli pre-install configure \
+  --cloud-provider $CLOUD_PROVIDER \
+  --create-url $CREATE_URL \
+  --acme-reg-email $ACME_REG_EMAIL \
+  --backstage-gitlab-token $BACKSTAGE_GITLAB_TOKEN \
+  --gitlab-group $GITLAB_GROUP \
+  --concourse-gitlab-token $CONCOURSE_GITLAB_TOKEN \
+  --gitlab-pat-token $GITLAB_PAT_TOKEN
 ```
 
-Once this has been committed to main alongside the changes associated with the new version, publish the new release and tag and the Github Actions workflow will ensure that the container is built and published to `ghcr.io/cd-create/create-cli:[VERSION]`, alongside the Binaries being attached to the Release Assets.
+For a better explanation of what the above variables are used for, run `create-cli pre-install configure help`.
+
+### Pushing to Remote Gitlab
+
+Once the CREATE code has been configured, it can now be committed and pushed to the Gitlab Group/Subgroup of your choosing. The do this, run the following:
+
+```shell
+create-cli pre-install push \
+    --cloud-provider $CLOUD_PROVIDER \
+    --pat $GITLAB_PERSONAL_ACCESS_TOKEN \
+    --gitlab-group $GITLAB_GROUP
+```
+
+For a better explanation of what the above variables are used for, run `create-cli pre-install push help`.
+
+## Contributing
+
+To contribute to `create-cli` please find more information in the [contributing guides](./CONTRIBUTING.md).
