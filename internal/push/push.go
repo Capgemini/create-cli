@@ -9,6 +9,10 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-billy/v5"
+	"github.com/go-git/go-billy/v5/osfs"
+	"github.com/go-git/go-git/v5/storage/filesystem"
+	"github.com/go-git/go-git/v5/plumbing/cache"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/spf13/viper"
@@ -19,6 +23,7 @@ var logger = log.StderrLogger{Stderr: os.Stderr, Tool: "Push"}
 var gitlabClient *gitlab.Client
 var gitlabGroup string
 var namespaceId int
+const GitDirName = ".git"
 
 func Push() {
 	gitlabGroup = viper.GetString("gitlab-group")
@@ -34,8 +39,15 @@ func pushRepo(repoName string) {
 
 	logger.Waitingf("Initialising Git project %s...", repoName)
 
-	// we have to do a `plainOpen` so the git library can perform actions on it that we need below.
-	r, err := git.PlainInit(configure.CreateRepositoryDirectory+repoName, false)
+
+    var wt, dot billy.Filesystem
+	wt = osfs.New(configure.CreateRepositoryDirectory+repoName)
+	dot, _ = wt.Chroot(GitDirName)
+	s := filesystem.NewStorage(dot, cache.NewObjectLRUDefault())
+	options := git.InitOptions{
+    		DefaultBranch: "refs/heads/main",
+    	}
+    r, err := git.InitWithOptions(s, wt, options)
 	if err != nil {
 		panic(err)
 	}

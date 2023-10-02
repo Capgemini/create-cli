@@ -39,6 +39,12 @@ func ReturnRepoListWithCloudProviderTemplate(cloudProvider string) []string {
 		return ReposToClone
 	}
 
+	if strings.ToLower(cloudProvider) == "aws-rke2" {
+        ReposToClone = append(ReposToClone, "aws-rke2-create-platform")
+        return ReposToClone
+    }
+
+
 	if strings.ToLower(cloudProvider) == "gcp" {
 		ReposToClone = append(ReposToClone, "gcp-create-platform")
 		return ReposToClone
