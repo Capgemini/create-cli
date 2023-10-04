@@ -58,7 +58,7 @@ Once the CREATE code has been configured, it can now be committed and pushed to 
 ```shell
 create-cli pre-install push \
     --cloud-provider $CLOUD_PROVIDER \
-    --pat $GITLAB_PERSONAL_ACCESS_TOKEN \
+    --pat $GITLAB_PAT_TOKEN \
     --gitlab-group $GITLAB_GROUP
 ```
 
